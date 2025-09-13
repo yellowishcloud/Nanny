@@ -39,52 +39,12 @@
 ---
 
 ## 📌 Архитектура
+
 ### UML Use Case Diagram
-```plantuml
-@startuml
-actor "Хозяин" as Owner
-actor "Pet-sitter" as Sitter
-actor "Админ" as Admin
+![Use Case Diagram](diagrams/usecase-diagram.png)
 
-rectangle "Pet Care Platform" {
-  (Регистрация/авторизация) as Auth
-  Owner -- Auth
-  Sitter -- Auth
-  
-  (Добавить питомца) as AddPet
-  Owner -- AddPet
-  
-  (Бронирование услуги) as Booking
-  Owner -- Booking
-  
-  (Онлайн-оплата) as Payment
-  Owner -- Payment
-  
-  (Отзывы и рейтинги) as Review
-  Owner -- Review
-  Sitter -- Review
-  
-  (Анкета ситтера) as SitterForm
-  Sitter -- SitterForm
-  
-  (Заявка на модерацию) as Interview
-  Sitter -- Interview
-  Admin -- Interview
-  
-  (Чат) as Chat
-  Owner -- Chat
-  Sitter -- Chat
-  Admin -- Chat : "Модерация"
-  
-  (Фотоотчёты) as Photos
-  Sitter -- Photos
-  
-  (Проверка анкет) as CheckForms
-  Admin -- CheckForms
-}
-@enduml
-
-
+### ER Diagram
+```mermaid
 erDiagram
     USERS {
         int user_id PK
@@ -92,7 +52,7 @@ erDiagram
         varchar email
         varchar phone
         varchar password_hash
-        varchar role "owner | sitter | admin"
+        varchar role  "owner | sitter | admin"
         datetime created_at
     }
 
@@ -100,7 +60,7 @@ erDiagram
         int pet_id PK
         int owner_id FK
         varchar name
-        varchar type "cat | dog | rodent"
+        varchar type  "cat | dog | rodent"
         int age
         text notes
     }
@@ -111,13 +71,13 @@ erDiagram
         text certificates
         text preferences
         varchar location
-        varchar status "pending | approved | rejected"
+        varchar status  "pending | approved | rejected"
     }
 
     SERVICES {
         int service_id PK
         int sitter_id FK
-        varchar type "walking | boarding | home-care"
+        varchar type  "walking | boarding | home-care"
         decimal price_per_hour
         text description
     }
@@ -130,15 +90,15 @@ erDiagram
         int service_id FK
         datetime start_time
         datetime end_time
-        varchar status "pending | confirmed | cancelled | completed"
+        varchar status  "pending | confirmed | cancelled | completed"
     }
 
     PAYMENTS {
         int payment_id PK
         int booking_id FK
         decimal amount
-        varchar method "card"
-        varchar status "paid | refunded | failed"
+        varchar method  "card, etc."
+        varchar status  "paid | refunded | failed"
         datetime created_at
     }
 
@@ -177,4 +137,32 @@ erDiagram
     CHATS ||--o{ MESSAGES : "contains"
 
 
+---
 
+## 🛠️ Технологии
+- **Frontend**: React / Next.js + Tailwind  
+- **Backend**: Node.js (Express / NestJS) или Java Spring Boot  
+- **Database**: PostgreSQL / MySQL  
+- **Auth**: JWT / OAuth2  
+- **Payments**: Stripe / KaspiPay  
+- **DevOps**: Docker, GitHub Actions  
+
+---
+
+## 📅 Планы разработки
+- [x] Анализ конкурентов (Paws.kz)  
+- [x] Составление UML и ER диаграмм  
+- [ ] Прототип в Figma  
+- [ ] MVP: регистрация, профили, поиск ситтеров  
+- [ ] Онлайн-оплата и бронирование  
+- [ ] Запуск пилота в Алматы  
+
+---
+
+## 👨‍💻 Команда
+- Product Manager: …  
+- UX/UI Designer: …  
+- Backend Developer: …  
+- Frontend Developer: …  
+
+---
