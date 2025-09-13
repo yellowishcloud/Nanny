@@ -38,6 +38,35 @@
 
 ---
 
+## 🛠️ Технологии
+- **Frontend**: React / Next.js + Tailwind  
+- **Backend**: Node.js (Express / NestJS) или Java Spring Boot  
+- **Database**: PostgreSQL / MySQL  
+- **Auth**: JWT / OAuth2  
+- **Payments**: Stripe / KaspiPay  
+- **DevOps**: Docker, GitHub Actions  
+
+---
+
+## 📅 Планы разработки
+- [x] Анализ конкурентов (Paws.kz)  
+- [x] Составление UML и ER диаграмм  
+- [ ] Прототип в Figma  
+- [ ] MVP: регистрация, профили, поиск ситтеров  
+- [ ] Онлайн-оплата и бронирование  
+- [ ] Запуск пилота в Алматы  
+
+---
+
+## 👨‍💻 Команда
+- Product Manager: …  
+- UX/UI Designer: …  
+- Backend Developer: …  
+- Frontend Developer: …  
+
+---
+
+
 ## 📌 Архитектура
 
 ### UML Use Case Diagram
@@ -136,33 +165,3 @@ erDiagram
     BOOKINGS ||--|| CHATS : "opens"
     CHATS ||--o{ MESSAGES : "contains"
 
-
----
-
-## 🛠️ Технологии
-- **Frontend**: React / Next.js + Tailwind  
-- **Backend**: Node.js (Express / NestJS) или Java Spring Boot  
-- **Database**: PostgreSQL / MySQL  
-- **Auth**: JWT / OAuth2  
-- **Payments**: Stripe / KaspiPay  
-- **DevOps**: Docker, GitHub Actions  
-
----
-
-## 📅 Планы разработки
-- [x] Анализ конкурентов (Paws.kz)  
-- [x] Составление UML и ER диаграмм  
-- [ ] Прототип в Figma  
-- [ ] MVP: регистрация, профили, поиск ситтеров  
-- [ ] Онлайн-оплата и бронирование  
-- [ ] Запуск пилота в Алматы  
-
----
-
-## 👨‍💻 Команда
-- Product Manager: …  
-- UX/UI Designer: …  
-- Backend Developer: …  
-- Frontend Developer: …  
-
----
