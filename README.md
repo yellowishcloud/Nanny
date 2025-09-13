@@ -5,11 +5,8 @@
 
 ---
 
-## 🚀 Цели проекта
-- Создать удобное и безопасное онлайн-пространство для владельцев животных.  
-- Снизить время и усилия на поиск надёжных ситтеров.  
-- Обеспечить прозрачность и доверие при сделках.  
-
+## 🚀 Цель проекта
+Создать удобное и безопасное онлайн-пространство, где владельцы домашних животных могут быстро найти надежных нянь (пет-ситеров) и места, дружелюбные к животным, в пределах города Алматы.
 ---
 
 ## 🔑 Основной функционал
@@ -39,30 +36,18 @@
 ---
 
 ## 🛠️ Технологии
-- **Frontend**: React / Next.js + Tailwind  
-- **Backend**: Node.js (Express / NestJS) или Java Spring Boot  
-- **Database**: PostgreSQL / MySQL  
+- **Frontend**: Angular 
+- **Backend**: Django
+- **Database**: PostgreSQL  
 - **Auth**: JWT / OAuth2  
 - **Payments**: Stripe / KaspiPay  
 - **DevOps**: Docker, GitHub Actions  
 
 ---
 
-## 📅 Планы разработки
-- [x] Анализ конкурентов (Paws.kz)  
-- [x] Составление UML и ER диаграмм  
-- [ ] Прототип в Figma  
-- [ ] MVP: регистрация, профили, поиск ситтеров  
-- [ ] Онлайн-оплата и бронирование  
-- [ ] Запуск пилота в Алматы  
-
----
-
 ## 👨‍💻 Команда
-- Product Manager: …  
-- UX/UI Designer: …  
-- Backend Developer: …  
-- Frontend Developer: …  
+- Alpyssova Nazerke
+- Armankyzy Anara
 
 ---
 
@@ -70,7 +55,7 @@
 ## 📌 Архитектура
 
 ### UML Use Case Diagram
-![Use Case Diagram](diagrams/usecase-diagram.png)
+![Use Case Diagram](diagrams/use_case.png)
 
 ### ER Diagram
 ```mermaid
