@@ -1,0 +1,82 @@
+@startuml
+left to right direction
+
+actor "Хозяин" as Owner
+actor "Pet-sitter" as Sitter
+actor "Админ" as Admin
+
+rectangle "Pet Care Platform" {
+  
+  ' --- Блок действий хозяина ---
+  (Регистрация / авторизация) as Auth
+  Owner -- Auth
+  Sitter -- Auth
+  
+  (Добавить питомца) as AddPet
+  Owner -- AddPet
+  
+  (Редактировать профиль) as EditProfile
+  Owner -- EditProfile
+  
+  (Смотреть список ситтеров) as ViewSitters
+  Owner -- ViewSitters
+  
+  (Фильтрация по животному/услугам/локации) as Filter
+  Owner -- Filter
+  
+  (Забронировать услугу) as Booking
+  Owner -- Booking
+  
+  (Оплатить онлайн) as Payment
+  Owner -- Payment
+  
+  (Смотреть историю заказов) as History
+  Owner -- History
+  
+  (Оставить отзыв и рейтинг) as Review
+  Owner -- Review
+  
+  ' --- Блок действий ситтера ---
+  (Заполнить анкету: ФИО, опыт, сертификаты, услуги, локация) as SitterForm
+  Sitter -- SitterForm
+  
+  (Добавить предпочтения: кого беру/не беру) as Preferences
+  Sitter -- Preferences
+  
+  (Пройти интервью / отправить заявку) as Interview
+  Sitter -- Interview
+  Admin -- Interview
+  
+  (Получать заказы) as ReceiveOrders
+  Sitter -- ReceiveOrders
+  
+  (Вести чат с хозяином) as Chat
+  Sitter -- Chat
+  Owner -- Chat
+  Admin -- Chat : "Модерация"
+  
+  (Отправлять фотоотчёты) as Photos
+  Sitter -- Photos
+  
+  (Получать оплату через платформу) as SitterPayment
+  Sitter -- SitterPayment
+  Admin -- SitterPayment
+  
+  ' --- Блок действий админа ---
+  (Проверять анкеты ситтеров) as CheckForms
+  Admin -- CheckForms
+  
+  (Принять/отклонить заявку) as ApproveSitter
+  Admin -- ApproveSitter
+  
+  (Модерировать профили и объявления) as ModerateProfiles
+  Admin -- ModerateProfiles
+  
+  (Разрешать споры, возвраты) as Disputes
+  Admin -- Disputes
+  
+  (Видеть статистику заказов и пользователей) as Stats
+  Admin -- Stats
+}
+
+@enduml
