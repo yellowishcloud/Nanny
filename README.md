@@ -1,4 +1,90 @@
-```mermaid
+# 🐾 Nanny — Pet Care Platform
+
+Веб-платформа для поиска и бронирования нянь (pet-sitters) и pet-friendly сервисов в Алматы.  
+Помогает владельцам домашних животных быстро и безопасно находить проверенных исполнителей для ухода за питомцами.
+
+---
+
+## 🚀 Цели проекта
+- Создать удобное и безопасное онлайн-пространство для владельцев животных.  
+- Снизить время и усилия на поиск надёжных ситтеров.  
+- Обеспечить прозрачность и доверие при сделках.  
+
+---
+
+## 🔑 Основной функционал
+### Для хозяина (Owner):
+- Регистрация и авторизация  
+- Добавление питомцев  
+- Поиск и фильтрация ситтеров (по животному, услуге, локации)  
+- Онлайн-бронирование и оплата  
+- История заказов  
+- Отзывы и рейтинги  
+
+### Для ситтера (Pet-sitter):
+- Регистрация и заполнение анкеты (опыт, сертификаты, услуги)  
+- Предпочтения (с кем работает / не работает)  
+- Интервью и модерация от админа  
+- Получение заказов  
+- Чат с хозяином, фотоотчёты  
+- Получение оплаты через платформу  
+
+### Для админа (Admin):
+- Проверка анкет ситтеров  
+- Принятие/отклонение заявок на регистрацию ситтеров  
+- Модерация профилей и чатов  
+- Управление оплатами и спорами  
+- Просмотр статистики пользователей и заказов  
+
+---
+
+## 📌 Архитектура
+### UML Use Case Diagram
+```plantuml
+@startuml
+actor "Хозяин" as Owner
+actor "Pet-sitter" as Sitter
+actor "Админ" as Admin
+
+rectangle "Pet Care Platform" {
+  (Регистрация/авторизация) as Auth
+  Owner -- Auth
+  Sitter -- Auth
+  
+  (Добавить питомца) as AddPet
+  Owner -- AddPet
+  
+  (Бронирование услуги) as Booking
+  Owner -- Booking
+  
+  (Онлайн-оплата) as Payment
+  Owner -- Payment
+  
+  (Отзывы и рейтинги) as Review
+  Owner -- Review
+  Sitter -- Review
+  
+  (Анкета ситтера) as SitterForm
+  Sitter -- SitterForm
+  
+  (Заявка на модерацию) as Interview
+  Sitter -- Interview
+  Admin -- Interview
+  
+  (Чат) as Chat
+  Owner -- Chat
+  Sitter -- Chat
+  Admin -- Chat : "Модерация"
+  
+  (Фотоотчёты) as Photos
+  Sitter -- Photos
+  
+  (Проверка анкет) as CheckForms
+  Admin -- CheckForms
+}
+@enduml
+
+
 erDiagram
     USERS {
         int user_id PK
@@ -6,7 +92,7 @@ erDiagram
         varchar email
         varchar phone
         varchar password_hash
-        varchar role  "owner | sitter | admin"
+        varchar role "owner | sitter | admin"
         datetime created_at
     }
 
@@ -14,7 +100,7 @@ erDiagram
         int pet_id PK
         int owner_id FK
         varchar name
-        varchar type  "cat | dog | rodent"
+        varchar type "cat | dog | rodent"
         int age
         text notes
     }
@@ -25,13 +111,13 @@ erDiagram
         text certificates
         text preferences
         varchar location
-        varchar status  "pending | approved | rejected"
+        varchar status "pending | approved | rejected"
     }
 
     SERVICES {
         int service_id PK
         int sitter_id FK
-        varchar type  "walking | boarding | home-care"
+        varchar type "walking | boarding | home-care"
         decimal price_per_hour
         text description
     }
@@ -44,15 +130,15 @@ erDiagram
         int service_id FK
         datetime start_time
         datetime end_time
-        varchar status  "pending | confirmed | cancelled | completed"
+        varchar status "pending | confirmed | cancelled | completed"
     }
 
     PAYMENTS {
         int payment_id PK
         int booking_id FK
         decimal amount
-        varchar method  "card, etc."
-        varchar status  "paid | refunded | failed"
+        varchar method "card"
+        varchar status "paid | refunded | failed"
         datetime created_at
     }
 
@@ -89,3 +175,6 @@ erDiagram
     BOOKINGS ||--|| REVIEWS : "receives"
     BOOKINGS ||--|| CHATS : "opens"
     CHATS ||--o{ MESSAGES : "contains"
+
+
+
