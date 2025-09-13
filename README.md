@@ -6,7 +6,7 @@ erDiagram
         varchar email
         varchar phone
         varchar password_hash
-        enum role (owner, sitter, admin)
+        varchar role  "owner | sitter | admin"
         datetime created_at
     }
 
@@ -14,7 +14,7 @@ erDiagram
         int pet_id PK
         int owner_id FK
         varchar name
-        enum type (cat, dog, rodent, etc.)
+        varchar type  "cat | dog | rodent"
         int age
         text notes
     }
@@ -25,13 +25,13 @@ erDiagram
         text certificates
         text preferences
         varchar location
-        enum status (pending, approved, rejected)
+        varchar status  "pending | approved | rejected"
     }
 
     SERVICES {
         int service_id PK
         int sitter_id FK
-        enum type (walking, boarding, home-care)
+        varchar type  "walking | boarding | home-care"
         decimal price_per_hour
         text description
     }
@@ -44,15 +44,15 @@ erDiagram
         int service_id FK
         datetime start_time
         datetime end_time
-        enum status (pending, confirmed, cancelled, completed)
+        varchar status  "pending | confirmed | cancelled | completed"
     }
 
     PAYMENTS {
         int payment_id PK
         int booking_id FK
         decimal amount
-        enum method (card, etc.)
-        enum status (paid, refunded, failed)
+        varchar method  "card, etc."
+        varchar status  "paid | refunded | failed"
         datetime created_at
     }
 
