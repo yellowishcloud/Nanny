@@ -1,0 +1,138 @@
+@startuml
+title Activity Diagram - Nanny Pet Care Platform
+
+|Pet Owner|
+start
+:Register / Login;
+:Add Pet Information;
+:Apply Filters
+(Pet Type / Service / Location);
+:View List of Pet Sitters;
+
+:Select Pet Sitter;
+:View Profile and Reviews;
+
+if (Suitable?) then (yes)
+  :Book Service;
+  :Enter Date, Time, Details;
+  
+  |System|
+  :Create Booking;
+  :Send Notification to Sitter;
+  
+  |Pet Sitter|
+  :Receive Booking Request;
+  
+  if (Accept Booking?) then (yes)
+    |System|
+    :Confirm Booking;
+    
+    |Pet Owner|
+    :Pay Online via Card;
+    
+    |System|
+    :Process Payment;
+    
+    if (Payment Success?) then (yes)
+      :Confirm Payment;
+      :Deduct Platform Commission (10-15%);
+      :Send Confirmation to Owner and Sitter;
+      
+      |Pet Owner|
+      :View Booking History;
+      
+      |Pet Sitter|
+      fork
+        :Chat with Owner;
+      fork again
+        :Send Photo Reports;
+      end fork
+      
+      |Pet Owner|
+      :Receive Photo Reports;
+      
+      |Pet Sitter|
+      :Complete Service;
+      
+      |System|
+      :Transfer Payment to Sitter;
+      
+      |Pet Sitter|
+      :Receive Payment;
+      
+      |Pet Owner|
+      if (Leave Review?) then (yes)
+        :Write Review and Rating;
+        
+        |System|
+        :Update Sitter Rating;
+      else (no)
+      endif
+      
+      stop
+      
+    else (no)
+      |Pet Owner|
+      :Display Payment Error;
+      stop
+    endif
+    
+  else (no)
+    |Pet Sitter|
+    :Decline Booking;
+    
+    |Pet Owner|
+    :Receive Rejection Notification;
+    stop
+  endif
+  
+else (no)
+  :Search Another Sitter;
+  stop
+endif
+
+|Pet Sitter|
+start
+:Register as Pet Sitter;
+:Fill Profile:
+Name, Experience, Certificates;
+:Add Preferences
+(Pet Types);
+:Set Services and Prices;
+
+|Moderator|
+:Review Sitter Application;
+
+if (Application Valid?) then (yes)
+  if (Pass Interview?) then (yes)
+    :Approve Profile;
+    
+    |Pet Sitter|
+    :Profile Activated;
+    :Wait for Bookings;
+    stop
+    
+  else (no)
+    :Reject After Interview;
+    
+    |Pet Sitter|
+    stop
+  endif
+  
+else (no)
+  :Reject Application;
+  
+  |Pet Sitter|
+  stop
+endif
+
+|Moderator|
+start
+:Moderate Profiles and Listings;
+:Resolve Disputes and Refunds;
+:View Statistics:
+Bookings and Users;
+:Verify New Sitters;
+stop
+
+@enduml
