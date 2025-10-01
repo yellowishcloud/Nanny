@@ -57,6 +57,9 @@
 ### UML Use Case Diagram
 ![Use Case Diagram](diagrams/use_case.png)
 
+### UML Activity Diagram
+![Activity Diagram](diagrams/activity.png)
+
 ### ER Diagram
 ```mermaid
 erDiagram
