@@ -48,6 +48,9 @@
 ## 👨‍💻 Команда
 - Alpyssova Nazerke
 - Armankyzy Anara
+- Shynbulatova Aidana
+- Arginbekuly Kydyrali
+- Abdilhan Akniet
 
 ---
 
