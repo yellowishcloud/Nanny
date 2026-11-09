@@ -1,4 +1,4 @@
-CREATE DATABASE nanny_db;
+-- CREATE DATABASE nanny_db;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,

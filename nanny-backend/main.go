@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -14,27 +18,167 @@ import (
 
 var db *sql.DB
 
+// loadEnv loads key-value pairs from .env if present without requiring external libraries
+func loadEnv() {
+	candidates := []string{".env", "../.env", "nanny-backend/.env"}
+	for _, path := range candidates {
+		file, err := os.Open(path)
+		if err != nil {
+			continue
+		}
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				k := strings.TrimSpace(parts[0])
+				v := strings.TrimSpace(parts[1])
+				v = strings.Trim(v, `"'`)
+				if os.Getenv(k) == "" {
+					os.Setenv(k, v)
+				}
+			}
+		}
+		log.Println("📁 Загружен файл окружения:", path)
+		break
+	}
+}
+
+// initDB creates required tables if they don't exist yet
+func initDB(db *sql.DB) error {
+	schema := `
+	CREATE TABLE IF NOT EXISTS users (
+		user_id SERIAL PRIMARY KEY,
+		full_name VARCHAR(100),
+		email VARCHAR(100) UNIQUE,
+		phone VARCHAR(20),
+		password_hash VARCHAR(255),
+		role VARCHAR(10) CHECK (role IN ('owner', 'sitter', 'admin')),
+		created_at TIMESTAMP DEFAULT NOW()
+	);
+
+	CREATE TABLE IF NOT EXISTS pets (
+		pet_id SERIAL PRIMARY KEY,
+		owner_id INT REFERENCES users(user_id),
+		name VARCHAR(50),
+		type VARCHAR(20) CHECK (type IN ('cat', 'dog', 'rodent')),
+		age INT,
+		notes TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS sitters (
+		sitter_id INT PRIMARY KEY REFERENCES users(user_id),
+		experience_years INT,
+		certificates TEXT,
+		preferences TEXT,
+		location VARCHAR(100),
+		status VARCHAR(10) CHECK (status IN ('pending', 'approved', 'rejected'))
+	);
+
+	CREATE TABLE IF NOT EXISTS services (
+		service_id SERIAL PRIMARY KEY,
+		sitter_id INT REFERENCES sitters(sitter_id),
+		type VARCHAR(20) CHECK (type IN ('walking', 'boarding', 'home-care')),
+		price_per_hour DECIMAL(10,2),
+		description TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS bookings (
+		booking_id SERIAL PRIMARY KEY,
+		owner_id INT REFERENCES users(user_id),
+		sitter_id INT REFERENCES sitters(sitter_id),
+		pet_id INT REFERENCES pets(pet_id),
+		service_id INT REFERENCES services(service_id),
+		start_time TIMESTAMP,
+		end_time TIMESTAMP,
+		status VARCHAR(15) CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed'))
+	);
+
+	CREATE TABLE IF NOT EXISTS payments (
+		payment_id SERIAL PRIMARY KEY,
+		booking_id INT REFERENCES bookings(booking_id),
+		amount DECIMAL(10,2),
+		method VARCHAR(50),
+		status VARCHAR(10) CHECK (status IN ('paid', 'refunded', 'failed')),
+		created_at TIMESTAMP DEFAULT NOW()
+	);
+
+	CREATE TABLE IF NOT EXISTS reviews (
+		review_id SERIAL PRIMARY KEY,
+		booking_id INT REFERENCES bookings(booking_id),
+		owner_id INT REFERENCES users(user_id),
+		sitter_id INT REFERENCES sitters(sitter_id),
+		rating INT CHECK (rating BETWEEN 1 AND 5),
+		comment TEXT,
+		created_at TIMESTAMP DEFAULT NOW()
+	);
+
+	CREATE TABLE IF NOT EXISTS chats (
+		chat_id SERIAL PRIMARY KEY,
+		booking_id INT REFERENCES bookings(booking_id),
+		created_at TIMESTAMP DEFAULT NOW()
+	);
+
+	CREATE TABLE IF NOT EXISTS messages (
+		message_id SERIAL PRIMARY KEY,
+		chat_id INT REFERENCES chats(chat_id),
+		sender_id INT REFERENCES users(user_id),
+		content TEXT,
+		sent_at TIMESTAMP DEFAULT NOW()
+	);
+	`
+	_, err := db.Exec(schema)
+	return err
+}
+
 func main() {
+	loadEnv()
+
+	// 🔹 Строка подключения к БД (берется из переменной DATABASE_URL, если нет — дефолт)
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		connStr = "postgres://postgres:Ana4aBada$$@localhost:5432/nanny_db?sslmode=disable"
+	}
+
 	var err error
-	connStr := "postgres://postgres:Ana4aBada$$@localhost:5432/nanny_db?sslmode=disable"
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("❌ Ошибка при вызове sql.Open:", err)
 	}
 
 	// Проверка подключения
 	if err := db.Ping(); err != nil {
 		log.Fatal("❌ Не удалось подключиться к БД:", err)
 	}
+	log.Println("✅ Подключение к БД успешно установлено")
+
+	// 🔹 Автоматическое создание таблиц, если они отсутствуют
+	if err := initDB(db); err != nil {
+		log.Println("⚠️ Предупреждение при инициализации структуры таблиц:", err)
+	} else {
+		log.Println("✅ Структура таблиц БД готова")
+	}
 
 	// Проверка таблицы users
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if err != nil {
-		log.Fatal("❌ Таблица users не найдена:", err)
+		log.Println("⚠️ Не удалось получить количество пользователей:", err)
+	} else {
+		fmt.Println("✅ В таблице users:", count, "записей")
 	}
 
-	fmt.Println("✅ Подключено к БД. В таблице users:", count, "записей")
+	// Определение директории со статическими файлами
+	staticDir := "./static"
+	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+		if _, err := os.Stat("./nanny-backend/static"); err == nil {
+			staticDir = "./nanny-backend/static"
+		}
+	}
 
 	r := mux.NewRouter()
 	// 🔹 CORS middleware
@@ -42,7 +186,7 @@ func main() {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusOK)
 				return
@@ -52,9 +196,15 @@ func main() {
 	})
 
 	// 🔹 Статические файлы (используем FileServer напрямую)
-	staticDir := http.Dir("./static")
-	staticHandler := http.FileServer(staticDir)
+	staticHandler := http.FileServer(http.Dir(staticDir))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", staticHandler))
+
+	// 🔹 Healthcheck для облачных сервисов
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	}).Methods("GET")
 
 	// 🔹 API эндпоинты
 	r.HandleFunc("/register/owner", registerOwner).Methods("POST")
@@ -63,19 +213,25 @@ func main() {
 
 	// 🔹 HTML страницы
 	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/login.html")
+		http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
 	}).Methods("GET")
 
 	r.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/register.html")
+		http.ServeFile(w, r, filepath.Join(staticDir, "register.html"))
 	}).Methods("GET")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/login.html")
+		http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
 	}).Methods("GET")
 
-	fmt.Println("✅ Server running on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	// Порт (берется из окружения PORT, по умолчанию 8080)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Printf("✅ Server running on http://0.0.0.0:%s\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 // ---------- Регистрация владельца ----------
