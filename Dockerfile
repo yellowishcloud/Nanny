@@ -3,6 +3,8 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
+ENV GOTOOLCHAIN=local
+
 # Download dependencies
 COPY nanny-backend/go.mod nanny-backend/go.sum ./
 RUN go mod download
