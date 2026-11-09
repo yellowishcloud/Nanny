@@ -3,11 +3,20 @@ FROM golang:1.23-bookworm AS builder
 
 WORKDIR /app
 
-# Copy application source
-COPY nanny-backend/ ./
+# Copy all source files
+COPY . ./
 
-# Build application directly (resolves dependencies automatically)
-RUN CGO_ENABLED=0 GOOS=linux go build -o server main.go
+# Auto-detect subdirectory, tidy dependencies, and compile main.go
+RUN if [ -f "go.mod" ]; then \
+        go mod tidy && \
+        CGO_ENABLED=0 GOOS=linux go build -o /app/server main.go && \
+        mkdir -p /app/static && cp -r static/* /app/static/; \
+    elif [ -d "nanny-backend" ]; then \
+        cd nanny-backend && \
+        go mod tidy && \
+        CGO_ENABLED=0 GOOS=linux go build -o /app/server main.go && \
+        mkdir -p /app/static && cp -r static/* /app/static/; \
+    fi
 
 # Production Stage
 FROM alpine:3.19
@@ -16,9 +25,8 @@ WORKDIR /app
 
 RUN apk --no-cache add ca-certificates tzdata
 
-# Copy binary and static assets
 COPY --from=builder /app/server .
-COPY nanny-backend/static ./static
+COPY --from=builder /app/static ./static
 
 ENV PORT=8080
 
