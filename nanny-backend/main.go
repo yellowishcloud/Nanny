@@ -147,29 +147,28 @@ func main() {
 	var err error
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("❌ Ошибка при вызове sql.Open:", err)
-	}
-
-	// Проверка подключения
-	if err := db.Ping(); err != nil {
-		log.Fatal("❌ Не удалось подключиться к БД:", err)
-	}
-	log.Println("✅ Подключение к БД успешно установлено")
-
-	// 🔹 Автоматическое создание таблиц, если они отсутствуют
-	if err := initDB(db); err != nil {
-		log.Println("⚠️ Предупреждение при инициализации структуры таблиц:", err)
+		log.Println("⚠️ Ошибка при вызове sql.Open:", err)
+	} else if err := db.Ping(); err != nil {
+		log.Println("⚠️ Не удалось подключиться к БД при запуске:", err)
+		log.Println("ℹ️ Убедитесь, что переменная DATABASE_URL правильно указана в настройках Render Environment Variables!")
 	} else {
-		log.Println("✅ Структура таблиц БД готова")
-	}
+		log.Println("✅ Подключение к БД успешно установлено")
 
-	// Проверка таблицы users
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
-	if err != nil {
-		log.Println("⚠️ Не удалось получить количество пользователей:", err)
-	} else {
-		fmt.Println("✅ В таблице users:", count, "записей")
+		// 🔹 Автоматическое создание таблиц, если они отсутствуют
+		if err := initDB(db); err != nil {
+			log.Println("⚠️ Предупреждение при инициализации структуры таблиц:", err)
+		} else {
+			log.Println("✅ Структура таблиц БД готова")
+		}
+
+		// Проверка таблицы users
+		var count int
+		err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+		if err != nil {
+			log.Println("⚠️ Не удалось получить количество пользователей:", err)
+		} else {
+			fmt.Println("✅ В таблице users:", count, "записей")
+		}
 	}
 
 	// Определение директории со статическими файлами
